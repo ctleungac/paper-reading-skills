@@ -16,9 +16,10 @@ A skill-based AI agent that reads, analyzes, summarizes, explains, and generates
 # Install dependencies
 pip install -r requirements.txt
 
-# Set up your OpenAI API key
+# Set up your API key (OpenAI or Gemini)
 cp .env.example .env
 # Edit .env and add your API key
+# For Gemini, also set OPENAI_BASE_URL to your Gemini endpoint
 
 # Run the agent
 python skill_agent.py
@@ -156,11 +157,11 @@ The LLM will automatically discover and use your skill when appropriate.
 ## Requirements
 
 - Python 3.10+
-- OpenAI API key (GPT-4o-mini or similar)
+- API key: OpenAI API key or Gemini API key (via OpenAI-compatible endpoint)
 
 ## Dependencies
 
-- `openai` - OpenAI API client
+- `openai` - OpenAI API client (also works with OpenAI-compatible endpoints like Gemini)
 - `PyMuPDF` - PDF text extraction
 - `arxiv` - arXiv paper downloading
 - `pyyaml` - SKILL.md parsing

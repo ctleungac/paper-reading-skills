@@ -228,9 +228,14 @@ class SkillAgent:
     def __init__(
         self,
         skills_dir: str = "claude_skills",
-        model: str = "gpt-4o-mini",
+        model: str = "gemini-2.5-flash",
     ):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        api_key = os.getenv("OPENAI_API_KEY")
+        base_url = os.getenv("OPENAI_BASE_URL")
+        client_kwargs = {"api_key": api_key}
+        if base_url:
+            client_kwargs["base_url"] = base_url
+        self.client = OpenAI(**client_kwargs)
         self.model = model
         self.skills_dir = skills_dir
 
@@ -517,7 +522,7 @@ You have access to the following skills. Use the `use_skill` tool to activate a 
         return "Max iterations reached."
 
 
-def run_pipeline(paper_source: str, model: str = "gpt-4o-mini"):
+def run_pipeline(paper_source: str, model: str = "gemini-2.5-flash"):
     """Run the automated paper analysis pipeline."""
     agent = SkillAgent(model=model)
     pipeline = PaperAnalysisPipeline(agent)
