@@ -3,6 +3,7 @@
 import os
 import subprocess
 import json
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -24,12 +25,20 @@ class PaperAnalysisPipeline:
     3. Analyze (methodology, strengths, weaknesses)
     4. Explain (simple explanation for non-experts)
     5. Reproduce (generate pseudo-code if applicable)
+    6. Translate (generate Chinese translations)
     """
 
     def __init__(self, agent: "SkillAgent", output_dir: str = "paper_reports"):
         self.agent = agent
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
+
+    def _extract_section(self, text: str, section_name: str) -> str:
+        """Extract a section from the translation response."""
+        import re
+        pattern = rf"##\s*{section_name}\s*\n(.*?)(?=##|\Z)"
+        match = re.search(pattern, text, re.DOTALL)
+        return match.group(1).strip() if match else text
 
     def run(self, paper_source: str, verbose: bool = True) -> dict:
         """
@@ -53,7 +62,7 @@ class PaperAnalysisPipeline:
         # Step 1: Read the paper
         if verbose:
             print("\n" + "=" * 60)
-            print("Step 1/5: Reading paper...")
+            print("Step 1/6: Reading paper...")
             print("=" * 60)
 
         read_prompt = f"Read the paper: {paper_source}"
@@ -68,10 +77,14 @@ class PaperAnalysisPipeline:
         # Step 2: Summarize
         if verbose:
             print("\n" + "=" * 60)
-            print("Step 2/5: Generating summary...")
+            print("Step 2/6: Generating summary...")
             print("=" * 60)
 
-        summary_prompt = "Now provide a detailed summary of this paper, including key takeaways."
+        summary_prompt = """Now provide a detailed summary of this paper, including key takeaways.
+
+Also include:
+1. References to 2-3 key figures from the paper (format: "**Figure X (Page Y)**: description")
+2. A mermaid diagram visualizing the core concept or architecture (use ```mermaid code block)"""
         summary_response = self.agent.run(summary_prompt, conversation_history)
         results["steps"]["summary"] = summary_response
         conversation_history.append({"role": "user", "content": summary_prompt})
@@ -83,7 +96,7 @@ class PaperAnalysisPipeline:
         # Step 3: Analyze
         if verbose:
             print("\n" + "=" * 60)
-            print("Step 3/5: Analyzing methodology, strengths, and weaknesses...")
+            print("Step 3/6: Analyzing methodology, strengths, and weaknesses...")
             print("=" * 60)
 
         analyze_prompt = """Analyze this paper in detail:
@@ -91,7 +104,9 @@ class PaperAnalysisPipeline:
 2. What are the key contributions?
 3. What are the strengths of this work?
 4. What are the weaknesses and limitations?
-5. What technical details are important for understanding the approach?"""
+5. What technical details are important for understanding the approach?
+6. Reference important figures that support the methodology or results (format: "**Figure X (Page Y)**: description")
+7. Generate a mermaid diagram showing the architecture or workflow (use ```mermaid code block)"""
         analyze_response = self.agent.run(analyze_prompt, conversation_history)
         results["steps"]["analysis"] = analyze_response
         conversation_history.append({"role": "user", "content": analyze_prompt})
@@ -103,7 +118,7 @@ class PaperAnalysisPipeline:
         # Step 4: Explain for non-experts
         if verbose:
             print("\n" + "=" * 60)
-            print("Step 4/5: Creating simple explanation for non-experts...")
+            print("Step 4/6: Creating simple explanation for non-experts...")
             print("=" * 60)
 
         explain_prompt = """Now explain this paper in simple, accessible language for someone who is NOT an expert.
@@ -126,7 +141,7 @@ Make it engaging and easy to understand for a general audience."""
         # Step 5: Reproduce (only if applicable)
         if verbose:
             print("\n" + "=" * 60)
-            print("Step 5/5: Checking if reproduction is applicable...")
+            print("Step 5/6: Checking if reproduction is applicable...")
             print("=" * 60)
 
         reproduce_prompt = """Based on your analysis of this paper, determine if code reproduction is applicable.
@@ -148,6 +163,59 @@ Be explicit about your decision and reasoning."""
         if verbose:
             print(f"\n{reproduce_response}")
 
+        # Step 6: Generate Chinese translations
+        if verbose:
+            print("\n" + "=" * 60)
+            print("Step 6/6: Generating Chinese translations...")
+            print("=" * 60)
+
+        translation_prompt = f"""Translate the following sections to Chinese (Simplified).
+
+IMPORTANT: Keep all technical terms, method names, model names, and acronyms in English.
+Examples of terms to keep in English:
+- Model/method names: Transformer, GPT, BERT, ResNet, CNN, RNN, LSTM, GAN, VAE, etc.
+- Technical terms: self-attention, gradient descent, backpropagation, encoder-decoder, embedding, fine-tuning, pre-training, etc.
+- Metrics and benchmarks: F1 score, BLEU, accuracy, precision, recall, ImageNet, GLUE, etc.
+- Common ML terms: batch size, learning rate, epoch, dropout, regularization, etc.
+
+General words should be translated: "model" → "模型", "training" → "训练", "method" → "方法", etc.
+
+Translate these three sections:
+
+---
+## Summary to translate:
+{results['steps'].get('summary', '')}
+
+---
+## Analysis to translate:
+{results['steps'].get('analysis', '')}
+
+---
+## Explanation to translate:
+{results['steps'].get('explanation', '')}
+
+---
+
+Format your response as:
+## 摘要
+[Chinese translation of summary]
+
+## 详细分析
+[Chinese translation of analysis]
+
+## 通俗解释
+[Chinese translation of explanation]
+"""
+        translation_response = self.agent.run(translation_prompt, [])  # Fresh context for translation
+
+        # Extract individual sections from the translation response
+        results["steps"]["summary_zh"] = self._extract_section(translation_response, "摘要")
+        results["steps"]["analysis_zh"] = self._extract_section(translation_response, "详细分析")
+        results["steps"]["explanation_zh"] = self._extract_section(translation_response, "通俗解释")
+
+        if verbose:
+            print(f"\n{translation_response[:1000]}..." if len(translation_response) > 1000 else f"\n{translation_response}")
+
         # Save report
         report_path = self._save_report(results, paper_source)
         results["report_path"] = str(report_path)
@@ -168,13 +236,15 @@ Be explicit about your decision and reasoning."""
         filename = f"report_{safe_name}_{timestamp}.md"
         filepath = self.output_dir / filename
 
-        # Build markdown report
-        report = f"""# Paper Analysis Report
+        # Build bilingual markdown report
+        report = f"""# Paper Analysis Report / 论文分析报告
 
-**Source:** {results['source']}
-**Generated:** {results['timestamp']}
+**Source / 来源:** {results['source']}
+**Generated / 生成时间:** {results['timestamp']}
 
 ---
+
+# English Version
 
 ## Summary
 
@@ -197,6 +267,26 @@ Be explicit about your decision and reasoning."""
 ## Reproduction Code
 
 {results['steps'].get('reproduction', 'Not available')}
+
+---
+
+# 中文版本 (Chinese Version)
+
+## 摘要 (Summary)
+
+{results['steps'].get('summary_zh', 'Not available')}
+
+---
+
+## 详细分析 (Analysis)
+
+{results['steps'].get('analysis_zh', 'Not available')}
+
+---
+
+## 通俗解释 (Explanation)
+
+{results['steps'].get('explanation_zh', 'Not available')}
 
 ---
 
@@ -417,7 +507,7 @@ You have access to the following skills. Use the `use_skill` tool to activate a 
 
         try:
             result = subprocess.run(
-                ["python", str(script_path)] + args,
+                [sys.executable, str(script_path)] + args,
                 capture_output=True,
                 text=True,
                 timeout=120,

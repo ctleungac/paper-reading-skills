@@ -96,6 +96,34 @@ Identify issues in these categories:
 - Dataset descriptions
 - Evaluation metrics used
 
+### 7. Visual Elements Analysis
+
+**Figure References (插图引用):**
+- List key figures that illustrate the methodology (e.g., "Figure 1 shows the model architecture")
+- Reference figures that present main results (e.g., "See Figure 3 for performance comparison")
+- Note diagrams that clarify complex concepts
+
+Reference format:
+- **Figure X (Page Y)**: [Brief description of what the figure shows and its importance]
+
+Examples:
+> **Figure 1 (Page 2)**: Overall system architecture showing the three-stage pipeline
+> **Figure 4 (Page 8)**: Ablation study results demonstrating the contribution of each component
+> **Figure 5 (Page 10)**: Attention visualization revealing learned patterns
+
+**Mermaid Diagram Generation (架构图生成):**
+Generate mermaid diagrams for complex architectures or workflows:
+- **Model architecture** (flowchart TD/LR)
+- **Training/inference pipeline** (flowchart)
+- **Data flow** (flowchart LR)
+- **Method comparison** (graph)
+
+Keep diagrams focused:
+- 5-15 nodes maximum
+- Clear, descriptive labels
+- Show key components and their relationships
+- Use subgraphs for complex systems if needed
+
 ## Output Format
 
 Structure your analysis as:
@@ -124,6 +152,16 @@ Structure your analysis as:
 
 ## Technical Details
 [Key equations, architecture, hyperparameters]
+
+## Architecture/Workflow Diagram
+```mermaid
+[Generated mermaid diagram visualizing the core architecture or workflow]
+```
+
+## Key Figures Reference
+- **Figure X (Page Y)**: [Description of what the figure shows and its significance]
+- **Figure X (Page Y)**: [Description]
+...
 
 ## Overall Assessment
 [Brief summary: is this paper good? Should it be read? Cited?]

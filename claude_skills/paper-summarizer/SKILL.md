@@ -87,6 +87,43 @@ Always end with 3-5 bullet points:
 - [Limitation to be aware of]
 ```
 
+## Visual Elements
+
+### Figure References
+Include references to key figures from the paper based on summary level:
+- **Brief summaries**: Mention 1 key figure if highly relevant
+- **Standard summaries**: Reference 2-3 important figures with brief context
+- **Detailed summaries**: Reference all important figures and provide context for each
+
+Reference format:
+- **Figure X (Page Y)**: [Brief description of what the figure shows and why it's important]
+
+Example:
+> **Figure 1 (Page 3)**: Model architecture showing the Transformer encoder-decoder structure with attention layers
+> **Figure 3 (Page 7)**: Performance comparison across benchmarks, demonstrating 15% improvement over baselines
+
+### Conceptual Diagrams
+For **Detailed summaries**, generate a mermaid diagram to visualize the core concept:
+- Keep diagrams simple (5-10 nodes maximum)
+- Use clear, descriptive labels
+- Focus on the main flow/process/relationship
+- Use appropriate diagram types:
+  - `flowchart TD` for architectures and workflows
+  - `flowchart LR` for pipelines and data flow
+  - `graph TD` for hierarchies and relationships
+
+Example format in output:
+```
+### Core Architecture
+```mermaid
+flowchart TD
+    A[Input] --> B[Encoder]
+    B --> C[Attention]
+    C --> D[Decoder]
+    D --> E[Output]
+```
+```
+
 ## Tips for Good Summaries
 
 1. **Lead with the contribution** - Don't bury the main point

@@ -5,10 +5,12 @@ A skill-based AI agent that reads, analyzes, summarizes, explains, and generates
 ## Features
 
 - **Read papers** from arXiv IDs, PDF URLs, or local files
-- **Summarize** with key takeaways
+- **Summarize** with key takeaways and figure references
 - **Analyze** methodology, strengths, and weaknesses
 - **Explain** in simple language for non-experts
 - **Generate pseudo-code** for reproducing methods (when applicable)
+- **Bilingual reports** - English + Chinese (technical terms preserved in English)
+- **Visual diagrams** - Mermaid diagrams for architectures and workflows
 
 ## Quick Start
 
@@ -44,7 +46,7 @@ You: Generate code to reproduce the method
 
 ### Automated Pipeline
 
-Run all 5 analysis steps automatically:
+Run all 6 analysis steps automatically:
 
 ```bash
 # Using arXiv ID
@@ -59,12 +61,63 @@ You: analyze arxiv:2301.00001
 
 The pipeline runs:
 1. **Read** - Download and extract text
-2. **Summarize** - Generate detailed summary
-3. **Analyze** - Methodology, contributions, strengths/weaknesses
+2. **Summarize** - Generate detailed summary with figure references and mermaid diagram
+3. **Analyze** - Methodology, contributions, strengths/weaknesses with visual elements
 4. **Explain** - Simple explanation for non-experts
 5. **Reproduce** - Generate pseudo-code (if applicable)
+6. **Translate** - Generate Chinese version (technical terms preserved in English)
 
-Reports are saved to `paper_reports/` as markdown files.
+Reports are saved to `paper_reports/` as bilingual markdown files.
+
+### Using Claude Code Directly
+
+You can also use **Claude Code** (the CLI tool) to analyze papers directly without running the Python script.
+
+#### Method 1: Read Local PDF
+
+In Claude Code, simply ask:
+```
+Read the paper at pdf/attention_is_all_you_need.pdf and summarize it
+
+Analyze the paper D:\projects\reading_skills\pdf\my_paper.pdf
+```
+
+#### Method 2: Download from arXiv First
+
+```bash
+# Step 1: Download the PDF
+curl -o paper.pdf https://arxiv.org/pdf/2312.00752.pdf
+
+# Step 2: Ask Claude Code to analyze
+Read and analyze the paper at paper.pdf
+```
+
+#### Method 3: Full Analysis Request
+
+Ask Claude Code for a complete analysis:
+```
+Read pdf/example.pdf and give me:
+1. A detailed summary with key takeaways
+2. Figure references (Figure X, Page Y format)
+3. A mermaid diagram of the architecture
+4. Analysis in both English and Chinese (keep technical terms in English)
+```
+
+#### Method 4: Use the Skills as Guidelines
+
+Reference the skill files for structured analysis:
+```
+Read the paper at pdf/example.pdf and analyze it following the guidelines
+in claude_skills/paper-analyzer/SKILL.md. Include figure references and
+generate a mermaid diagram for the architecture.
+```
+
+#### Comparison
+
+| Method | Tool | Best For |
+|--------|------|----------|
+| Claude Code | Direct conversation | Quick analysis, interactive Q&A, flexible requests |
+| skill_agent.py | Python script | Automated batch processing, full 6-step pipeline, saved reports |
 
 ## Architecture
 
@@ -150,9 +203,9 @@ The LLM will automatically discover and use your skill when appropriate.
 
 ## TO-DOs
 
-1. Step 6 - Cataloger: Extend the pipeline to automatically append a high-level summary (Question, Method, Setting) to a central catalog.md journal.
+1. **Cataloger**: Extend the pipeline to automatically append a high-level summary (Question, Method, Setting) to a central catalog.md journal.
 
-2. Discovery Agent: Add a module to fetch Top-K trending papers from research hubs and feed them into the pipeline in batch mode.
+2. **Discovery Agent**: Add a module to fetch Top-K trending papers from research hubs and feed them into the pipeline in batch mode.
 
 ## Requirements
 
