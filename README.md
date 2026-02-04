@@ -10,7 +10,7 @@ A skill-based AI agent that reads, analyzes, summarizes, explains, and generates
 - **Explain** in simple language for non-experts
 - **Generate pseudo-code** for reproducing methods (when applicable)
 - **Bilingual reports** - English + Chinese (technical terms preserved in English)
-- **Visual diagrams** - Mermaid diagrams for architectures and workflows
+- **Q&A Mode** - asking questions to agent for a better understanding.
 
 ## Quick Start
 
@@ -179,28 +179,6 @@ skills_learning/
 └── paper_reports/          # Generated reports
 ```
 
-## Creating New Skills
-
-1. Create a directory: `claude_skills/my-skill/`
-2. Create `SKILL.md` with YAML frontmatter:
-
-```yaml
----
-name: my-skill
-description: When to use this skill (LLM reads this to decide)
----
-
-# My Skill
-
-## Instructions
-
-Step-by-step guidance for the LLM...
-```
-
-3. Optionally add scripts in `scripts/` subdirectory
-
-The LLM will automatically discover and use your skill when appropriate.
-
 ## TO-DOs
 
 1. **Cataloger**: Extend the pipeline to automatically append a high-level summary (Question, Method, Setting) to a central catalog.md journal.
@@ -210,7 +188,7 @@ The LLM will automatically discover and use your skill when appropriate.
 ## Requirements
 
 - Python 3.10+
-- API key: OpenAI API key or Gemini API key (via OpenAI-compatible endpoint)
+- API key: OpenAI API key or Gemini API key (via OpenAI-compatible endpoint) or Claude code account
 
 ## Dependencies
 
